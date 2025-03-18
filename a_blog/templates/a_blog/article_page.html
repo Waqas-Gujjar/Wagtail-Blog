@@ -1,6 +1,6 @@
 {% extends 'layouts/blank.html' %}
 
-{% load wagtailcore_tags wagtailimages_tags   %}
+{% load wagtailcore_tags wagtailimages_tags %}
 
 {% block class %}article{% endblock %}
 
@@ -28,24 +28,20 @@
     </div>
 
     <p>{{ page.body|richtext }}</p>
-
-    <div class='flex gap-2 pt-6'>
+    
+    <div class="flex gap-2 pt-6">
         {% if page.tags %}
-            
-                {% for tag in page.tags.all %}
-                <a href="{{ page.get_parent.url }}?tag={{ tag }}" class="border rounded-full border-gray-400 px-3 py-2 ">
+            {% for tag in page.tags.all %}
+                <a href="{{ page.get_parent.url }}?tag={{ tag }}" class="inline-block bg-gray-300 border text-gray-900 px-3 py-2 rounded-full mr-2">
                     {{ tag }}
                 </a>
-                {% endfor %}
-            
+            {% endfor %}
         {% endif %}
     </div>
 
     <div class="mt-4 inline-block">
-        <a href="{{ page.get_parent.url  }}" class="underline">Return to blog</a>
+        <a href="{{ page.get_parent.url }}" class="underline">Return to blog</a>
     </div>
-
 </div>
-
 
 {% endblock %}

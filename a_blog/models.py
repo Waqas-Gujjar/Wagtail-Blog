@@ -5,6 +5,7 @@ from wagtail.admin.panels import FieldPanel
 from modelcluster.fields import ParentalKey
 from taggit.models import TaggedItemBase
 from taggit.managers import TaggableManager
+from wagtail.search import index
 from modelcluster.tags import ClusterTaggableManager
 from datetime import date
 
@@ -19,9 +20,9 @@ class BlogPage(Page):
 
 
     def get_context(self, request):
-        tag = request.GET.get('tags')
+        tag = request.GET.get('tag')
         if tag:
-            articles = ArticlePage.objects.filter(tags__name=tag)
+            articles = ArticlePage.objects.filter(tags__name=tag).live().order_by('-first_published_at')
         else:
            articles = self.get_children().live().order_by('-first_published_at')
         context = super().get_context(request)
@@ -36,7 +37,13 @@ class ArticlePage(Page):
     image = models.ForeignKey(
         'wagtailimages.Image', on_delete=models.SET_NULL, related_name='+', null=True
     )
+    search_fields = Page.search_fields + [
+        index.SearchField('intro'),
+        
+    ]
+
     tags = ClusterTaggableManager(through="ArticleTag", blank=True) 
+
     content_panels = Page.content_panels + [
         FieldPanel('intro'),
         FieldPanel('body'),
@@ -47,6 +54,6 @@ class ArticlePage(Page):
     ]
 
 class ArticleTag(TaggedItemBase):
-    content_object = ParentalKey(   ArticlePage,on_delete=models.CASCADE, related_name='tagged_items')
+    content_object = ParentalKey(ArticlePage,on_delete=models.CASCADE, related_name='tagged_items')
 
 
