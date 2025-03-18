@@ -45,9 +45,25 @@ INSTALLED_APPS = [
     'allauth',
     'allauth.account',
 
+    'wagtail.contrib.forms',
+    'wagtail.contrib.redirects',
+    'wagtail.embeds',
+    'wagtail.sites',
+    'wagtail.users',
+    'wagtail.snippets',
+    'wagtail.documents',
+    'wagtail.images',
+    'wagtail.search',
+    'wagtail.admin',
+    'wagtail',
+
+    'modelcluster',
+    'taggit',
+
     # My apps
     'a_home',
     'a_users',
+    'a_blog',
 ]
 
 SITE_ID = 1
@@ -62,6 +78,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'allauth.account.middleware.AccountMiddleware',
     'django_htmx.middleware.HtmxMiddleware',
+    'wagtail.contrib.redirects.middleware.RedirectMiddleware',
 ]
 
 AUTHENTICATION_BACKENDS = [
@@ -148,3 +165,7 @@ LOGIN_REDIRECT_URL = '/'
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 ACCOUNT_LOGIN_METHODS = {'email'}
 ACCOUNT_EMAIL_REQUIRED = True
+
+
+WAGTAIL_SITE_NAME = 'Blog'
+WAGTAILADMIN_BASE_URL = 'http://mywebsite.com'
