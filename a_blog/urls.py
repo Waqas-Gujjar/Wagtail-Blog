@@ -10,6 +10,6 @@ urlpatterns = [
     path('cms/', include(wagtailadmin_urls)),
     path('documents/', include(wagtaildocs_urls)),
     path('', include(wagtail_urls)),
-    path ("search", articles_search , name="article_search"),
+    path ("search", article_search , name="article_search"),
     
 ]

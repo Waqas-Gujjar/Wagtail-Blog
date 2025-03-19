@@ -31,28 +31,63 @@ class BlogPage(Page):
         return context
 
 class ArticlePage(Page):
-    intro = models.CharField(max_length=250)
+    intro = models.CharField(max_length=80)
     body = RichTextField(blank=True)
-    date = models.DateField("Post date",default=date.today)
+    date = models.DateField("Post date", default=date.today)
     image = models.ForeignKey(
-        'wagtailimages.Image', on_delete=models.SET_NULL, related_name='+', null=True
+        'wagtailimages.Image', on_delete=models.SET_NULL, null=True, related_name='+'
     )
-    search_fields = Page.search_fields + [
-        index.SearchField('intro'),
+
+    caption = models.CharField(blank=True, max_length=80)
+
+    tags = ClusterTaggableManager(through='ArticleTag', blank=True)
+
+    views = models.PositiveIntegerField(default=0, editable=False)
+
+    def image_url(self):
+        return self.image.get_rendition('fill-1200x675|jpegquality-80').url 
+    
+    def get_context(self, request):
+        context = super().get_context(request)
+        context['image_url'] = self.image_url()
+        return context
+
+    def increment_views_count(self):
+        self.views += 1
+        self.save(update_fields=['views'])
+
+    def serve(self, request):
+        session_key = f"artical_viewed_{self.pk}"
+        if not request.session.get(session_key,False):
+          self.increment_views_count()
+          request.session[session_key] = True
+        return super().serve(request)
         
-    ]
-
-    tags = ClusterTaggableManager(through="ArticleTag", blank=True) 
-
+    
+    def get_tags(self):
+        return ", ".join(tag.name for tag in self.tags.all())
+    
+    def get_author(self):
+        return self.owner.profile.name
+    
+    def get_author_username(self):
+        return self.owner.username
+    
+    search_fields = Page.search_fields + [
+            index.SearchField('intro'),
+            index.SearchField('body'),
+            index.SearchField('get_tags'),
+            index.SearchField('get_author'),
+            index.SearchField('get_author_username')
+        ]
+    
     content_panels = Page.content_panels + [
         FieldPanel('intro'),
+        FieldPanel('image'),
         FieldPanel('body'),
         FieldPanel('date'),
-        FieldPanel('image'),
         FieldPanel('tags'),
-
     ]
-
 class ArticleTag(TaggedItemBase):
     content_object = ParentalKey(ArticlePage,on_delete=models.CASCADE, related_name='tagged_items')
 
